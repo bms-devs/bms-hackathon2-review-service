@@ -3,7 +3,6 @@ package org.bmshackathon;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +11,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.HttpStatus.OK;
+import java.util.List;
 
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewController {
 
-    ReviewRepository clientRepository;
+    ReviewRepository reviewRepository;
 
     @Autowired
     public ReviewController(ReviewRepository reviewRepository) {
-        this.clientRepository = reviewRepository;
+        this.reviewRepository = reviewRepository;
+    }
+
+    @RequestMapping(value = "/findByVideoId/{videoId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Review>> findByVideoId(@PathVariable Long videoId) {
+        List<Review> reviewList = reviewRepository.findByVideoImageId(videoId);
+        return reviewList.isEmpty() ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
+                new ResponseEntity<>(reviewList, HttpStatus.OK);
     }
 }
